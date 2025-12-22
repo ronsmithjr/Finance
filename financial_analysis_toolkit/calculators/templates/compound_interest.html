@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Compound Interest{% endblock %}
+{% block body %}
+
+<h2>🧮 Compounded Interest Calculator</h2>
+<form method="POST" class="row g-3">
+    <div class="col-md-4">
+        <label for="principal" class="form-label">Principal ($)</label>
+        <input type="number" step="0.01" class="form-control" name="principal" required>
+    </div>
+    <div class="col-md-4">
+        <label for="rate" class="form-label">Annual Rate (%)</label>
+        <input type="number" step="0.01" class="form-control" name="rate" required>
+    </div>
+    <div class="col-md-4">
+        <label for="years" class="form-label">Years</label>
+        <input type="number" step="0.1" class="form-control" name="years" required>
+    </div>
+    <div class="col-md-4">
+        <label for="tax" class="form-label">Tax Rate (%)</label>
+        <input type="number" step="0.01" class="form-control" name="tax" value="30">
+    </div>
+    <div class="col-md-4">
+        <label for="inflation" class="form-label">Inflation Rate (%)</label>
+        <input type="number" step="0.01" class="form-control" name="inflation" value="3">
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Calculate</button>
+    </div>
+</form>
+
+{% if result_nominal is not none %}
+<div class="alert alert-success mt-4">
+    <strong>Result:</strong> ${{ result_nominal | round(2) }}
+</div>
+{% endif %}
+
+{% if result_nominal is not none %}
+<div class="mt-5">
+    <h4>📈 Compound Growth Chart</h4>
+    <canvas id="growthChart1" width="600" height="300"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const principal = parseFloat("{{ request.form['principal'] | default(0, true) }}");
+    const rate = parseFloat("{{ request.form['rate'] | default(0, true) }}") / 100;
+    const years = parseFloat("{{ request.form['years'] | default(0, true) }}");
+    const labels1 = [];
+    const data = [];
+
+    for (let i = 0; i <= years; i++) {
+        labels1.push("Year " + i);
+        data.push(principal * Math.pow(1 + rate, i));
+    }
+
+    new Chart(document.getElementById("growthChart1"), {
+        type: "line",
+        data: {
+            labels: labels1,
+            datasets: [{
+                label: "Value Over Time",
+                data: data,
+                borderColor: "#007bff",
+                backgroundColor: "rgba(0,123,255,0.1)",
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => "$" + value.toFixed(2)
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+
+
+
+{% if chart_data %}
+<div class="mt-5">
+    <h4>📈 Growth Comparison</h4>
+    <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" id="toggleReal" checked>
+        <label class="form-check-label" for="toggleReal">Show Real After-Tax Growth</label>
+    </div>
+    <canvas id="growthChart" width="600" height="300"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = JSON.parse('{{ chart_data.labels | tojson | safe }}');
+    const nominalData = JSON.parse('{{ chart_data.nominal | tojson | safe }}');
+    const realData = JSON.parse('{{ chart_data.real | tojson | safe }}');
+
+    const ctx = document.getElementById("growthChart").getContext("2d");
+    const chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Nominal Growth",
+                    data: nominalData,
+                    borderColor: "#007bff",
+                    backgroundColor: "rgba(0,123,255,0.1)",
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: "Real After-Tax Growth",
+                    data: realData,
+                    borderColor: "#28a745",
+                    backgroundColor: "rgba(40,167,69,0.1)",
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => "$" + value.toFixed(2)
+                    }
+                }
+            }
+        }
+    });
+
+    document.getElementById("toggleReal").addEventListener("change", function () {
+        chart.data.datasets[1].hidden = !this.checked;
+        chart.update();
+    });
+</script>
+
+{% endif %}
+
+
+{% endblock %}

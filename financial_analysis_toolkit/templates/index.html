@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Financial Analysis Toolkit{% endblock %}
+{% block body %}
+<h1 class="mb-4">📊 Financial Analysis Toolkit</h1>
+
+{% for category, items in categories.items() %}
+
+<div class="card section">
+  <div class="card-header" data-bs-toggle="collapse" data-bs-target="#{{ loop.index }}">
+    <h5>{{ category }}</h5>
+  </div>
+  <div id="{{ loop.index }}" class="collapse">
+    <ul class="list-group list-group-flush">
+      {% for item in items %}
+      <li class="list-group-item">📌 {{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endfor %}
+
+{% endblock %}
+
+<!-- {% for item in items %}
+<li class="list-group-item">📌 {{ item }}</li>
+{% endfor %} -->
