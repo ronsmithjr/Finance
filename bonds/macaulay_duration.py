@@ -25,10 +25,10 @@ def macaulay_duration(face_value, coupon_rate, maturity, price, frequency=1):
     return duration
 
 # Inputs
-face_value = 100
-coupon_rate = 0.06
-maturity = 5
-price = 129.75
+face_value = 1000
+coupon_rate = 0.04
+maturity = 10
+price = 1000.01
 frequency = 2
 
 # Calculate and print Macaulay Duration
