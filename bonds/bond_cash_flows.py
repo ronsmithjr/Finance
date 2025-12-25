@@ -3,6 +3,46 @@ from datetime import datetime, timedelta
 import pandas as pd
 import sys
 
+def generate_meta_data(face_value=1000, 
+                       coupon_rate=0.04, years=10, 
+                       payments_per_year=2, settlement_date="2025-10-15", 
+                       current_interest_rate = 0.04):
+    meta_data = []
+    # Calculate maturity date by adding years to settlement_date
+    try:
+       # settlement_dt = datetime.strptime(settlement_date, "%Y-%m-%d")
+
+        if isinstance(settlement_date, datetime):
+            settlement_dt = settlement_date
+        elif isinstance(settlement_date, str):
+            settlement_dt = datetime.strptime(settlement_date, "%Y-%m-%d")
+        elif hasattr(settlement_date, 'strftime'):  # Handles datetime.date
+            settlement_dt = datetime.strptime(settlement_date.strftime("%Y-%m-%d"), "%Y-%m-%d")
+        else:
+            raise ValueError("Invalid settlement_date type")
+
+
+
+        maturity_dt = settlement_dt.replace(year=settlement_dt.year + years)
+        maturity_date_str = maturity_dt.strftime("%Y-%m-%d")
+    except (ValueError, TypeError) as e:
+        print(f"Error calculating maturity date: {e}")
+        print(f"settlement_date: {settlement_date}, years: {years}")
+        maturity_date_str = "Error"
+    meta_data.append({
+        "Face Value": f"{face_value:,.2f}",
+        "Coupon Rate": coupon_rate,
+        "Settlement Date": settlement_date,
+        "Periods Per Year": payments_per_year,
+        "Maturity Date": maturity_date_str,
+        "Current Interest Rate": current_interest_rate
+    })
+    meta_df = pd.DataFrame(meta_data)
+    # cols = ["Face Value","Coupon Rate","Settlement Date","Periods Per Year","Maturity Date","Current Interest Rate"]
+    # meta_df = meta_df[cols]
+    meta_df_pivoted = meta_df.T.reset_index()
+    meta_df_pivoted.columns = ['Field', 'Value']
+    return meta_df_pivoted
 
 
 def generate_treasury_cash_flows(face_value=1000, coupon_rate=0.04, years=10, payments_per_year=2, settlement_date="2025-10-15", current_interest_rate = 0.04):
@@ -34,6 +74,7 @@ def generate_treasury_cash_flows(face_value=1000, coupon_rate=0.04, years=10, pa
         year_val = payment_date.year if i % payments_per_year == 0 else ""
         
         discount_factor = get_discount_factor(current_interest_rate, payments_per_year,i)
+
         cash_flows.append({
             "Year": year_val,
             "Period": i,
@@ -58,33 +99,46 @@ def generate_treasury_cash_flows(face_value=1000, coupon_rate=0.04, years=10, pa
     cash_flows.append(summary_row)
 
     df = pd.DataFrame(cash_flows)
+   
     # Ensure 'Year' is the first column
     cols = ["Year", "Period", "Payment Date", "Cash Flow", "Discount Factor", "PV"]
     df = df[cols]
     # Format 'Cash Flow' with commas
     df["Cash Flow"] = df["Cash Flow"].apply(lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x)
+    df["PV"] = df["PV"].apply(lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x)
+
     return df, start_date.date(), cash_flows[-2]["Payment Date"]  # Also return settlement and maturity dates
 
-def get_discount_factor(curr_interest_rate, payments_per_year, period):
-    step1 = curr_interest_rate / payments_per_year
-    step2 = 1 + step1
-    step3 = step2 ** period
-    retVal = round(step3, 8)
-    return retVal
+def get_discount_factor(current_interest_rate, payments_per_year, period):
+    periodic_rate = current_interest_rate / payments_per_year   #Step 1
+    growth_factor = 1 + periodic_rate                           #Step 2
+    compounded_factor = growth_factor ** period                 #Step 3
+    discount_factor = round(compounded_factor, 8)               #Step 4
+    return discount_factor
 
 def save_cashflows_to_csv(df, filename):
     df.to_csv(filename, index = False)
 
+def save_cashflows_to_csv(meta_df, df, filename):
+    with open(filename, 'w', newline='') as f:
+        meta_df.to_csv(f, index=False, header=False)
+        f.write('\n')
+        df.to_csv(f, index=False)
+
 if __name__ == "__main__":
+    now_str = datetime.now().strftime("%Y%m%d_%H%M%S")   
      # Allow interest rate to be passed as an argument
-    if len(sys.argv) >= 8:
+    if len(sys.argv) >= 9:
         try:
+            
+
             coupon_rate = float(sys.argv[1])            
-            current_interest_rate = sys.argv[2]
+            current_interest_rate = float(sys.argv[2])
             face_value = float(sys.argv[3])
             years = int(sys.argv[4])
             payments_per_year = int(sys.argv[5])
             settlement_date = sys.argv[6]
+            file_name = sys.argv[7]
             # Validate settlement_date format
             try:
                 datetime.strptime(settlement_date, "%Y-%m-%d")
@@ -99,14 +153,17 @@ if __name__ == "__main__":
             years = 10
             payments_per_year = 2
             settlement_date = "2025-10-15"
+            file_name = fr"bond_cash_flows_{now_str}.csv" 
     else:
         coupon_rate = 0.04
         current_interest_rate = 0.04
         face_value=1000
 
-        years=10
+        years=15
         payments_per_year=2
-        settlement_date="2025-10-15"        
+        settlement_date="2025-10-15"  
+        
+        file_name = fr"S:\Finance\assets\bond_cash_flows_{now_str}.csv"  
        
 
     df, settlement_date, maturity_date = generate_treasury_cash_flows(
@@ -114,11 +171,13 @@ if __name__ == "__main__":
         coupon_rate=coupon_rate,
         years=years,
         payments_per_year=payments_per_year,
-        settlement_date=settlement_date
+        settlement_date=settlement_date,
+        current_interest_rate = current_interest_rate
     )
-    print(df)
-    print(f"Settlement Date: {settlement_date}")
-    print(f"Maturity Date: {maturity_date}")
+
+    meta_df = generate_meta_data(face_value,coupon_rate, years,payments_per_year,
+                                 settlement_date,current_interest_rate)
     now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = fr"S:\Finance\assets\bond_cash_flows_{now_str}.csv"
-    save_cashflows_to_csv(df, filename)
+    
+
+    save_cashflows_to_csv(meta_df, df, file_name)
