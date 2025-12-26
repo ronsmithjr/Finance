@@ -1,36 +1,55 @@
 import numpy as np
+import pandas as pd
 
-# Function to calculate Macaulay Duration
-def macaulay_duration(face_value, coupon_rate, maturity, price, frequency=1):
-    # Calculate coupon payment
-    coupon_payment = face_value * coupon_rate / frequency
-    # Yield to maturity approximation (required for discounting)
-    # We'll use the bond price to estimate yield using numerical methods
+def calculate_macaulay_duration(cash_flows, annual_yield, periods_per_year, bond_price):
+    """
+    Calculates the Macaulay Duration of a bond.
+
+    Parameters:
+    cash_flows (list or array): A list/array of periodic cash flows (coupon payments + face value at maturity).
+    annual_yield (float): The bond's annual yield to maturity (as a decimal, e.g., 0.05 for 5%).
+    periods_per_year (int): The number of coupon payments per year (e.g., 1 for annual, 2 for semi-annual).
+    bond_price (float): The current market price of the bond.
+
+    Returns:
+    float: The Macaulay Duration in years.
+    """
+    periodic_yield = annual_yield / periods_per_year
+    total_periods = len(cash_flows)
     
-    def bond_price(yield_rate):
-        return sum([coupon_payment / (1 + yield_rate)**t for t in range(1, maturity + 1)]) + face_value / (1 + yield_rate)**maturity
+    # Calculate the sum of (time * PV of each cash flow)
+    weighted_pv_sum = 0
+    for t, cf in enumerate(cash_flows, 1):
+        weighted_pv_sum += t * cf / (1 + periodic_yield)**t
 
-    def price_diff(y):
-        return bond_price(y) - price
+    # Macaulay duration in periods
+    macaulay_duration_periods = weighted_pv_sum / bond_price
 
-    # Use Newton-Raphson method to estimate yield to maturity
-    from scipy.optimize import newton
-    ytm = newton(price_diff, x0=0.05)
+    # Convert to years
+    macaulay_duration_years = macaulay_duration_periods / periods_per_year
+    
+    return macaulay_duration_years
 
-    # Calculate Macaulay Duration
-    duration = sum([(t * coupon_payment) / (1 + ytm)**t for t in range(1, maturity + 1)])
-    duration += (maturity * face_value) / (1 + ytm)**maturity
-    duration /= price
+def prepare_duration_df(macaulay_duration):
+    duration_data = [{"Macaulay Duration": f"{macaulay_duration:.2f}"}]
+    duration_df = pd.DataFrame(duration_data)
+    duration_df_pivoted = duration_df.T.reset_index()
+    duration_df_pivoted.columns = ['Field', 'Value']
+    return duration_df_pivoted
+# --- Example Usage ---
+# Example: A 3-year bond with a 4% annual coupon, semi-annual payments, 
+# $1000 face value, and a 4% annual yield (price at par).
 
-    return duration
+# Inputs:
+# Annual coupon payment is 4% of $1000 = $40. Semi-annual payment is $20.
+# The final cash flow includes the last coupon payment and the face value ($20 + $1000 = $1020).
+# example_cash_flows = [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 1020.0] 
+# example_annual_yield = 0.04 # 4% as a decimal
+# example_periods_per_year = 2 # Semi-annual payments
+# example_bond_price = 1000.0 # Price at par since coupon rate equals yield
 
-# Inputs
-face_value = 1000
-coupon_rate = 0.04
-maturity = 10
-price = 1000.01
-frequency = 2
+# # Calculate duration
+# duration = calculate_macaulay_duration(example_cash_flows, example_annual_yield, example_periods_per_year, example_bond_price)
 
-# Calculate and print Macaulay Duration
-duration = macaulay_duration(face_value, coupon_rate, maturity, price, frequency)
-print(f"Macaulay Duration: {duration:.4f} years")
+# print(f"The Macaulay Duration of the bond is: {duration:.4f} years")
+

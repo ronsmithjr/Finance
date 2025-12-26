@@ -2,6 +2,9 @@
 from datetime import datetime, timedelta
 import pandas as pd
 import sys
+from macaulay_duration import calculate_macaulay_duration, prepare_duration_df
+from weighted_average_life import calculate_weighted_average_life, calculate_wal,prepare_wal_df
+from bonds.bond_analytics import bond_panel
 
 def generate_meta_data(face_value=1000, 
                        coupon_rate=0.04, years=10, 
@@ -38,8 +41,8 @@ def generate_meta_data(face_value=1000,
         "Current Interest Rate": current_interest_rate
     })
     meta_df = pd.DataFrame(meta_data)
-    # cols = ["Face Value","Coupon Rate","Settlement Date","Periods Per Year","Maturity Date","Current Interest Rate"]
-    # meta_df = meta_df[cols]
+   
+   
     meta_df_pivoted = meta_df.T.reset_index()
     meta_df_pivoted.columns = ['Field', 'Value']
     return meta_df_pivoted
@@ -107,7 +110,9 @@ def generate_treasury_cash_flows(face_value=1000, coupon_rate=0.04, years=10, pa
     df["Cash Flow"] = df["Cash Flow"].apply(lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x)
     df["PV"] = df["PV"].apply(lambda x: f"{x:,.2f}" if isinstance(x, (int, float)) else x)
 
-    return df, start_date.date(), cash_flows[-2]["Payment Date"]  # Also return settlement and maturity dates
+    cash_flow_values = [item["Cash Flow"] for item in cash_flows if "Cash Flow" in item]
+
+    return df, cash_flow_values, total_pv, cash_flows  # Also return settlement and maturity dates
 
 def get_discount_factor(current_interest_rate, payments_per_year, period):
     periodic_rate = current_interest_rate / payments_per_year   #Step 1
@@ -124,6 +129,15 @@ def save_cashflows_to_csv(meta_df, df, filename):
         meta_df.to_csv(f, index=False, header=False)
         f.write('\n')
         df.to_csv(f, index=False)
+
+def save_cashflows_to_csv(meta_df, shock_data, df, filename):
+    with open(filename, 'w', newline='') as f:
+        meta_df.to_csv(f, index=False, header=False)
+        f.write('\n')
+        shock_data.to_csv(f, index = False)
+        f.write('\n')
+        df.to_csv(f, index=False)
+
 
 if __name__ == "__main__":
     now_str = datetime.now().strftime("%Y%m%d_%H%M%S")   
@@ -159,14 +173,14 @@ if __name__ == "__main__":
         current_interest_rate = 0.04
         face_value=1000
 
-        years=15
+        years=10
         payments_per_year=2
         settlement_date="2025-10-15"  
         
         file_name = fr"S:\Finance\assets\bond_cash_flows_{now_str}.csv"  
        
 
-    df, settlement_date, maturity_date = generate_treasury_cash_flows(
+    df, cash_flow_values, total_pv, cash_flows = generate_treasury_cash_flows(
         face_value=face_value,
         coupon_rate=coupon_rate,
         years=years,
@@ -175,9 +189,13 @@ if __name__ == "__main__":
         current_interest_rate = current_interest_rate
     )
 
-    meta_df = generate_meta_data(face_value,coupon_rate, years,payments_per_year,
-                                 settlement_date,current_interest_rate)
-    now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    meta_df = generate_meta_data(face_value, coupon_rate, years, payments_per_year,
+                                 settlement_date, current_interest_rate)
+
+    macaulay_duration = calculate_macaulay_duration(cash_flow_values[:-1], current_interest_rate, payments_per_year, total_pv)
     
 
-    save_cashflows_to_csv(meta_df, df, file_name)
+    meta_data, shockdata = bond_panel(coupon_rate,years,current_interest_rate,payments_per_year,face_value)
+
+
+    save_cashflows_to_csv(meta_data, shockdata, df, file_name)
