@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 from macaulay_duration import calculate_macaulay_duration, prepare_duration_df
 from weighted_average_life import calculate_weighted_average_life, calculate_wal,prepare_wal_df
-from bonds.bond_analytics import bond_panel
+from bond_analytics import bond_panel
 
 def generate_meta_data(face_value=1000, 
                        coupon_rate=0.04, years=10, 
