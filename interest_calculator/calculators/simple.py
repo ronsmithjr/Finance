@@ -17,7 +17,21 @@ def calculate_simple_interest(principal: float, rate: float, time: int) -> dict:
     """
     interest = principal * rate * time
     total = principal + interest
+    payment = total / time if time else 0
     return {
         "Interest": round(interest, 2),
-        "Total Amount": round(total, 2)
+        "Total Amount": round(total, 2),
+        "Payment": round(payment, 2)
     }
+
+if __name__ == "__main__":
+    principal = 1000  # Example principal
+    rate = 0.05       # Example rate (5%)
+    time = 3          # Example time (3 years)
+    result = calculate_simple_interest(principal, rate, time)
+    interest = result["Interest"]
+    total_amount = result["Total Amount"]
+    payment = result["Payment"] / 36
+    print(f"Interest: {interest}")
+    print(f"Total Amount: {total_amount}")
+    print(f"Payment: {payment}")

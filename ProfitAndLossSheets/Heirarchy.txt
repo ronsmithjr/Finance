@@ -1,0 +1,49 @@
+Revenue
+├── Advisory Fees
+├── Asset Management Fees
+├── Performance Fees
+├── Commission Revenue
+├── Trading Revenue
+├── Interest Income
+├── Banking Service Fees
+├── Other Operating Revenue
+
+Direct Costs
+├── Advisor Payouts
+├── Client Acquisition Costs
+├── Custody Fees
+├── Clearing Fees
+├── Revenue Sharing
+├── Transaction Processing Fees
+
+Net Revenue
+
+Operating Expenses
+├── Compensation & Benefits
+├── Bonuses
+├── Payroll Taxes
+├── Technology
+├── Market Data Services
+├── Software Licenses
+├── Professional Services
+├── Audit Fees
+├── Legal Fees
+├── Compliance Costs
+├── Rent
+├── Marketing
+├── Travel
+├── Insurance
+├── Depreciation
+
+Operating Profit
+
+Non-Operating Items
+├── Interest Expense
+├── Investment Gains/Losses
+├── Foreign Exchange Gains/Losses
+
+Pre-Tax Income
+
+Taxes
+
+Net Income
