@@ -8,19 +8,17 @@ CREATE TABLE AccountType (
 );
 
 
-
+DROP TABLE IF EXISTS  finance.dbo.account 
 Create Table Account(
     AccountKey int identity(1,1) primary key,
     AccountCode varchar(20),
     AccountName varchar(200),
 
     PnLSection varchar(100),
-    AccountTypeKey int,
+    AccountType varchar(100),
 
     AccountCategory varchar(100),
-    AccountDescription varchar(100),
-
-    Foreign Key AccountTypeKey References AccountType(AccountTypeKey)
+    AccountDescription varchar(100)
 );
 
 Create Table LegalEntity(
@@ -41,39 +39,64 @@ Create Table ClientSegment(
     SegmentName varchar(100)
 )
 /*Can the DateTimeTable be prefilled*/
+/*Since we have different types of holidays, we will not put holidays here*/
+DROP TABLE IF EXISTS dbo.DateTimeTable;
 Create Table DateTimeTable(
     DateKey  int identity(1,1) primary key,
-    CalendarDate Date not null,
+    CalendarDate Date not nully,
     FiscalYear int not null,
     FiscalQuarter int not null,
-    FiscalMonth int  not null,    
-    MonthName VARCHAR(20),
-    QuarterName VARCHAR(10),
-    YearMonth VARCHAR(7),
-    MonthStartDate DATE,
-    MonthEndDate DATE,
-    IsMonthEnd BIT,
-    IsQuarterEnd BIT,
-    IsYearEnd BIT
+    FiscalMonth int not null,    
+    "MonthName" VARCHAR(20) not null,
+    QuarterName VARCHAR(10) not null,
+    YearMonth VARCHAR(7) not null,
+    MonthStartDate DATE not null,
+    MonthEndDate DATE not null,
+    IsMonthEnd BIT not null,
+    IsQuarterStart BIT not null,
+    IsQuarterEnd BIT not null,
+    IsYearEnd BIT not null
 );
 
+Create unique clustered index CIX_DateTimeTable_CalendarDate
+    on DateTimeTable (CalendarDate);
+
+Drop Table if exists dbo.FactPnL;
 Create Table FactPnL(
     FactPnLKey bigint identity(1,1) primary key,
-
-    DateKey int,
-    AccountKey int,
-    LocalEntityKey int,
-    BusinessUnitKey int,
+	--Foreign Keys
+    DateKey int,	-- Points to Date Slices
+    AccountKey int,  -- Points to Revenue or Expense
+    LegalEntityKey int, -- Points to Legal Entity
+    BusinessUnitKey int, -- Points to 
     SegmentKey int,
 
-    ActualAmount decimal(18,2),
-    BudgetAmount decimal (18,2),
-    ForecastAmount decimal(18,2),
+	--Measures
+    ActualAmount decimal(18,2), -- Measure
+    BudgetAmount decimal (18,2), --Measure
+    ForecastAmount decimal(18,2), -- Measure
 
-    Foreign Key DateKey References DateTimeTable(DateKey),
+    Foreign Key (DateKey) References DateTimeTable(DateKey),
+    Foreign Key (AccountKey) References Account(AccountKey),
+    Foreign Key (LegalEntityKey) References LegalEntity(LegalEntityKey),
+    Foreign Key (BusinessUnitKey) References BusinessUnit(BusinessUnitKey),
+    Foreign Key (SegmentKey) References ClientSegment(SegmentKey),
+);
 
-    Foreign Key AccountKey References Account(AccountKey),
-    Foreign Key LocalEntityKey References LegalEntity(LocalEntityKey),
-    Foreign Key BusinessUnitKey References BusinessUnit(BusinessUnitKey),
-    Foreign Key SegmentKey References ClientSegment(SegmentKey)
+Drop Table if exists dbo.TransactionEntry;
+Create Table TransactionEntry(
+    TransactionId bigint identity(1, 1) primary key,
+    TransactionDate Date not null,
+    Amount decimal(18, 2) not null,
+    AccountKey int not null,
+    BusinessUnitKey int not null,
+    LegalEntityKey int not null,
+    Comments varchar(255),   
+
+    Foreign Key (AccountKey)
+        References Account(AccountKey),
+    Foreign Key (BusinessUnitKey)
+        References BusinessUnit(BusinessUnitKey),
+    Foreign Key (LegalEntityKey)
+        References LegalEntity(LegalEntityKey)
 );

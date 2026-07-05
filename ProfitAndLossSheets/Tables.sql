@@ -14,24 +14,33 @@ Create Table Account(
         References AccountCategory(CategoryId)
 );
 
-Create Table Department(
-    DepartmentId int primary key,
-    DepartmentName varchar(100) not null
-);
 
+/*We need a transaction table to be linked to the following
+1. Account Table
+2. Business Unit
+3. Client Segment
+4. Legal Entity
+    We can join the Transaction Date to the DateTimeTable Calendar Date
+*/
 Create Table TransactionEntry(
     TransactionId bigint primary key,
     TransactionDate Date not null,
-    AccountId int not null,
-    DepartmentId int not null,
-    Description varchar(255),
-    Amount decimal(18, 2) not null
+    Amount decimal(18, 2) not null,
+    AccountCode varchar(20) not null
+    BusinessUnitKey int not null,
+    LegalEntityKey int not null
 
-    Foreign Key (AccountId)
-        References Account(AccountId)
 
-    Foreign Key (DepartmentId)
-        References Department(DepartmentId)
+    Comments varchar(255),
+    
+
+    Foreign Key (AccountCode)
+        References Account(AccountCode)
+    Foreign Key (BusinessUnitKey)
+        References BusinessUnit(BusinessUnitKey)
+    Foreign Key (LegalEntityKey)
+        References LegalEntity(LegalEntityKey)
+
 );
 
 Create Table FiscalPeriod(
