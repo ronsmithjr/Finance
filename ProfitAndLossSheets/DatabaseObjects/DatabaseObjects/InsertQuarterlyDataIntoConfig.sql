@@ -1,10 +1,11 @@
+USE [Finance]
+GO
 
-/* Quarterly aggregation for a fiscal year */
-
-DECLARE @StartFiscalYear INT = 2023;
-DECLARE @EndFiscalYear   INT = 2030;
-
-SELECT
+INSERT INTO [dbo].[UserConfig]
+           ([SystemName] ,[PropertyKey] ,[ConfigKey] ,[ConfigValue] ,[UpdatedDate] ,[UpdatedBy])
+     VALUES
+           ('PnLSheet', 'RevenuesAndExpenses','QuarterlyAggregation'
+		   ,'SELECT
     dt.FiscalYear,
     dt.FiscalQuarter,
     dt.QuarterName,
@@ -21,13 +22,11 @@ GROUP BY
     dt.QuarterName
 ORDER BY
     dt.FiscalYear,
-    dt.FiscalQuarter;
-
-/* Pivoted for quarterly aggregation for a fiscal year*/
-
-
-
-SELECT
+    dt.FiscalQuarter'
+           ,GetDate()
+           ,'Admin'),
+           ('PnLSheet', 'RevenuesAndExpenses','QuarterlyAggregationPivoted'
+		   ,'SELECT
     FiscalYear,
     isnull ([Q1],0) as Q1,
     isnull ([Q2],0) as Q2,
@@ -49,18 +48,18 @@ JOIN
 WHERE
 	dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 AND
-	a.AccountType  IN ('Revenue', 'Expense')
+	a.AccountType  IN (''Revenue'', ''Expense'')
 ) as sourceTable
 PIVOT
 (
     Sum(Amount)
     FOR QuarterName in ([Q1],[Q2],[Q3],[Q4])
 ) as PivotTable
-Order by FiscalYear asc, Accounttype desc;
-
-
-
-SELECT
+Order by FiscalYear asc, Accounttype desc'
+           ,GetDate()
+           ,'Admin'),
+           ('PnLSheet', 'RevenuesAndExpenses','QuarterlyAggregationByBusinessUnit'
+		   ,'SELECT
     dt.FiscalYear,
     dt.FiscalQuarter,
     dt.QuarterName,
@@ -92,4 +91,9 @@ GROUP BY
 ORDER BY
 	bu.BusinessUnitName,
     dt.FiscalYear,
-    dt.FiscalQuarter;
+    dt.FiscalQuarter'
+           ,GetDate()
+           ,'Admin')
+GO
+
+

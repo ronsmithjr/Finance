@@ -208,3 +208,6 @@ __marimo__/
 *.csv
 
 ProfitAndLossSheets/Archive
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+ProfitAndLossSheets/DatabaseObjects/.vs/DatabaseObjects/v15/.ssms_suo

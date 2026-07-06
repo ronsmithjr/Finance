@@ -1,8 +1,20 @@
-/* Monthly aggregation for a fiscal year */
-DECLARE @StartFiscalYear INT = 2023;
-DECLARE @EndFiscalYear   INT = 2030;
-
-SELECT
+USE [Finance]
+GO
+INSERT INTO
+    [dbo].[UserConfig] (
+        [SystemName],
+        [PropertyKey],
+        [ConfigKey],
+        [ConfigValue],
+        [UpdatedDate],
+        [UpdatedBy]
+    )
+VALUES
+    (
+        'PnLSheet',
+        'RevenuesAndExpenses',
+        'MonthlyAggregation',
+        'SELECT
     dt.FiscalYear,
     dt.FiscalMonth,
     dt.MonthName,
@@ -19,11 +31,15 @@ GROUP BY
     dt.MonthName
 ORDER BY
     dt.FiscalYear,
-    dt.FiscalMonth;
-
-/* Pivoted monthly aggregation for a fiscal year */
-
-SELECT
+    dt.FiscalMonth',
+        GetDate(),
+        'Admin'
+    ),
+    (
+        'PnLSheet',
+        'RevenuesAndExpenses',
+        'MonthlyAggregationPivoted',
+        'SELECT
     FiscalYear,
     ISNULL([January], 0) AS January,
     ISNULL([February], 0) AS February,
@@ -53,22 +69,22 @@ FROM
     WHERE
         dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 	AND
-		a.AccountType  IN ('Revenue', 'Expense')
+		a.AccountType  IN (''Revenue'', ''Expense'')
 ) AS SourceTable
 PIVOT
 (
     SUM(Amount)
     FOR MonthName IN ([January], [February], [March], [April], [May], [June], [July], [August], [September], [October], [November], [December])
 ) AS PivotTable
-Order by FiscalYear asc, Accounttype desc
-;
-
-
-
-
-/* Monthly aggregation for a fiscal year  */
-
-SELECT
+Order by FiscalYear asc, Accounttype desc',
+        GetDate(),
+        'Admin'
+    ),
+    (
+        'PnLSheet',
+        'RevenuesAndExpenses',
+        'MonthlyAggregationByBusinessKey',
+        'SELECT
     dt.FiscalYear,
     dt.FiscalMonth,
     dt.MonthName,
@@ -100,4 +116,8 @@ GROUP BY
 ORDER BY
 	bu.BusinessUnitName,
     dt.FiscalYear,
-    dt.FiscalMonth;
+    dt.FiscalMonth',
+        GetDate(),
+        'Admin'
+    )
+GO
