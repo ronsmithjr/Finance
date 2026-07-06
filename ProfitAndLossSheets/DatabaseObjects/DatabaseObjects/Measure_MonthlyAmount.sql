@@ -21,7 +21,8 @@ ORDER BY
     dt.FiscalMonth;
 
 /* Pivoted monthly aggregation for a fiscal year */
-DECLARE @PivotFiscalYear INT = 2025; -- Set the fiscal year for the pivot
+DECLARE @StartFiscalYear INT = 2023;
+DECLARE @EndFiscalYear   INT = 2030;
 
 SELECT
     FiscalYear,
@@ -48,7 +49,7 @@ FROM
     JOIN
         DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
     WHERE
-        dt.FiscalYear = @PivotFiscalYear
+        dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 ) AS SourceTable
 PIVOT
 (
@@ -58,7 +59,8 @@ PIVOT
 
 
 /* Monthly aggregation for a fiscal year */
-DECLARE @FiscalYear INT = 2025; -- Set the fiscal year you want to query
+DECLARE @StartFiscalYear INT = 2023;
+DECLARE @EndFiscalYear   INT = 2030;
 DECLARE @BusinessUnitName varchar(100) = 'Private Wealth'
 
 SELECT
@@ -66,6 +68,9 @@ SELECT
     dt.FiscalMonth,
     dt.MonthName,
     bu.BusinessUnitName,
+    a.AccountName,
+    a.AccountType,
+    a.AccountCategory,
     IsNull(SUM(t.Amount),0) AS MonthlyAmount
 FROM
     TransactionEntry t
@@ -73,8 +78,10 @@ JOIN
     DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 JOIN
     BusinessUnit bu on t.BusinessUnitKey = bu.BusinessUnitKey
+JOIN
+    Account a on t.AccountKey = a.AccountKey
 WHERE
-    dt.FiscalYear = @FiscalYear
+    dt.FiscalYear  >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 AND
     bu.businessunitname = @businessUnitName
 GROUP BY

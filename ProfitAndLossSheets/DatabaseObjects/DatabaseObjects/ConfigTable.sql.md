@@ -1,3 +1,6 @@
+# Configuration Table
+
+```sql
 Drop Table if exists Finance.dbo.UserConfig;
 
 Create Table Finance.dbo.UserConfig
@@ -17,3 +20,4 @@ Create unique nonclustered index UIDX_UserConfig on Finance.dbo.UserConfig
     PropertyKey,
     ConfigKey
 );
+```

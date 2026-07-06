@@ -22,7 +22,10 @@ ORDER BY
     dt.FiscalQuarter;
 
 /* Pivoted for quarterly aggregation for a fiscal year*/
-DECLARE @FiscalYear_Q INT = 2025; -- Set the fiscal year you want to query
+DECLARE @StartFiscalYear INT = 2023;
+DECLARE @EndFiscalYear   INT = 2030;
+
+
 SELECT
     FiscalYear,
     isnull ([Q1],0) as Q1,
@@ -40,10 +43,12 @@ FROM
 JOIN
     DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 WHERE
-    dt.FiscalYear = @FiscalYear_Q
+	dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 ) as sourceTable
 PIVOT
 (
     Sum(Amount)
     FOR QuarterName in ([Q1],[Q2],[Q3],[Q4])
-) as PivotTable; 
+) as PivotTable;
+
+
