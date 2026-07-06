@@ -1,5 +1,6 @@
 /* Monthly aggregation for a fiscal year */
-DECLARE @FiscalYear INT = 2025; -- Set the fiscal year you want to query
+DECLARE @StartFiscalYear INT = 2023;
+DECLARE @EndFiscalYear   INT = 2030;
 
 SELECT
     dt.FiscalYear,
@@ -11,7 +12,7 @@ FROM
 JOIN
     DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 WHERE
-    dt.FiscalYear = @FiscalYear
+    dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 GROUP BY
     dt.FiscalYear,
     dt.FiscalMonth,
@@ -21,8 +22,6 @@ ORDER BY
     dt.FiscalMonth;
 
 /* Pivoted monthly aggregation for a fiscal year */
-DECLARE @StartFiscalYear INT = 2023;
-DECLARE @EndFiscalYear   INT = 2030;
 
 SELECT
     FiscalYear,
@@ -41,6 +40,7 @@ SELECT
 FROM
 (
     SELECT
+		a.AccountType,
         dt.FiscalYear,
         dt.MonthName,
         t.Amount
@@ -48,20 +48,25 @@ FROM
         TransactionEntry t
     JOIN
         DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
+	JOIN 
+		Account a on t.AccountKey = a.AccountKey
     WHERE
         dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
+	AND
+		a.AccountType  IN ('Revenue', 'Expense')
 ) AS SourceTable
 PIVOT
 (
     SUM(Amount)
     FOR MonthName IN ([January], [February], [March], [April], [May], [June], [July], [August], [September], [October], [November], [December])
-) AS PivotTable;/* Pivoted monthly aggregation for a fiscal year */
+) AS PivotTable
+Order by FiscalYear asc, Accounttype desc
+;
 
 
-/* Monthly aggregation for a fiscal year */
-DECLARE @StartFiscalYear INT = 2023;
-DECLARE @EndFiscalYear   INT = 2030;
-DECLARE @BusinessUnitName varchar(100) = 'Private Wealth'
+
+
+/* Monthly aggregation for a fiscal year  */
 
 SELECT
     dt.FiscalYear,
@@ -83,12 +88,17 @@ JOIN
 WHERE
     dt.FiscalYear  >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 AND
-    bu.businessunitname = @businessUnitName
+    --bu.businessunitkey = @BusinessUnitKey
+	bu.BusinessUnitKey in (Select BusinessUnitKey from businessunit)
 GROUP BY
     dt.FiscalYear,
     dt.FiscalMonth,
     dt.MonthName,
-    bu.BusinessUnitName
+    bu.BusinessUnitName,
+    a.AccountName,
+    a.AccountType,
+    a.AccountCategory
 ORDER BY
+	bu.BusinessUnitName,
     dt.FiscalYear,
     dt.FiscalMonth;
