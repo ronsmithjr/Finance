@@ -26,7 +26,7 @@ Create Table LegalEntity(
     EntityCode varchar(20),
     EntityName varchar(200),
     Country varchar(50),
-    RegulatoryRegion varchar(50);
+    RegulatoryRegion varchar(50)
 );
 
 Create Table BusinessUnit(
@@ -43,7 +43,7 @@ Create Table ClientSegment(
 DROP TABLE IF EXISTS dbo.DateTimeTable;
 Create Table DateTimeTable(
     DateKey  int identity(1,1) primary key,
-    CalendarDate Date not nully,
+    CalendarDate Date not null,
     FiscalYear int not null,
     FiscalQuarter int not null,
     FiscalMonth int not null,    
@@ -58,7 +58,7 @@ Create Table DateTimeTable(
     IsYearEnd BIT not null
 );
 
-Create unique clustered index CIX_DateTimeTable_CalendarDate
+Create unique nonclustered index UIX_DateTimeTable_CalendarDate
     on DateTimeTable (CalendarDate);
 
 Drop Table if exists dbo.FactPnL;
@@ -90,13 +90,10 @@ Create Table TransactionEntry(
     Amount decimal(18, 2) not null,
     AccountKey int not null,
     BusinessUnitKey int not null,
-    LegalEntityKey int not null,
     Comments varchar(255),   
 
     Foreign Key (AccountKey)
         References Account(AccountKey),
     Foreign Key (BusinessUnitKey)
-        References BusinessUnit(BusinessUnitKey),
-    Foreign Key (LegalEntityKey)
-        References LegalEntity(LegalEntityKey)
+        References BusinessUnit(BusinessUnitKey)
 );
