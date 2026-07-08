@@ -22,6 +22,18 @@
     </LogicalFolder>
     <LogicalFolder Name="Queries" Type="0" Sorted="true">
       <Items>
+        <FileNode Name="InsertMonthlyDataIntoConfig.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local):True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>(local)</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>InsertMonthlyDataIntoConfig.sql</FullPath>
+        </FileNode>
+        <FileNode Name="InsertQuarterlyDataIntoConfig.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local):True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>(local)</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>InsertQuarterlyDataIntoConfig.sql</FullPath>
+        </FileNode>
         <FileNode Name="InsertQueries.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local):True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>(local)</AssociatedConnSrvName>
@@ -58,12 +70,6 @@
           <AssociatedConnUserName />
           <FullPath>InsertDateTime.sql</FullPath>
         </FileNode>
-        <FileNode Name="Select_FiscalMonthStarts.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local):True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>(local)</AssociatedConnSrvName>
-          <AssociatedConnUserName />
-          <FullPath>Select_FiscalMonthStarts.sql</FullPath>
-        </FileNode>
         <FileNode Name="TableCreate_ReportingSchema.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:(local):True</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>(local)</AssociatedConnSrvName>
@@ -85,6 +91,12 @@
           <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>ConfigTable.sql.md</FullPath>
+        </FileNode>
+        <FileNode Name="Select_FiscalMonthStarts.sql.md">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>Select_FiscalMonthStarts.sql.md</FullPath>
         </FileNode>
         <FileNode Name="WindowingFunctions.md">
           <AssociatedConnectionMoniker />

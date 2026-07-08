@@ -40,7 +40,7 @@ SELECT
 FROM
 (
     SELECT
-		a.AccountType,
+		g.GlCodeCategory,
         dt.FiscalYear,
         dt.MonthName,
         t.Amount
@@ -49,18 +49,18 @@ FROM
     JOIN
         DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 	JOIN 
-		Account a on t.AccountKey = a.AccountKey
+		GLCodes g on t.GlCodeKey = g.GlCodeKey
     WHERE
         dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 	AND
-		a.AccountType  IN ('Revenue', 'Expense')
+		g.GlCodeCategory  IN ('Revenue', 'Expense')
 ) AS SourceTable
 PIVOT
 (
     SUM(Amount)
     FOR MonthName IN ([January], [February], [March], [April], [May], [June], [July], [August], [September], [October], [November], [December])
 ) AS PivotTable
-Order by FiscalYear asc, Accounttype desc
+Order by FiscalYear asc, GlCodeCategory desc
 ;
 
 
@@ -73,9 +73,8 @@ SELECT
     dt.FiscalMonth,
     dt.MonthName,
     bu.BusinessUnitName,
-    a.AccountName,
-    a.AccountType,
-    a.AccountCategory,
+     g.GlCodeName,
+    g.GlCodeCategory,
     IsNull(SUM(t.Amount),0) AS MonthlyAmount
 FROM
     TransactionEntry t
@@ -84,7 +83,7 @@ JOIN
 JOIN
     BusinessUnit bu on t.BusinessUnitKey = bu.BusinessUnitKey
 JOIN
-    Account a on t.AccountKey = a.AccountKey
+    GLCodes g on t.GlCodeKey = g.GlCodeKey
 WHERE
     dt.FiscalYear  >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 AND
@@ -94,9 +93,8 @@ GROUP BY
     dt.FiscalMonth,
     dt.MonthName,
     bu.BusinessUnitName,
-    a.AccountName,
-    a.AccountType,
-    a.AccountCategory
+    g.GlCodeName,
+    g.GlCodeCategory
 ORDER BY
 	bu.BusinessUnitName,
     dt.FiscalYear,

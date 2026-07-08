@@ -21,6 +21,20 @@ Create Table Account(
     AccountDescription varchar(100)
 );
 
+
+Drop Table if Exists Finance.dbo.GLCodes
+Create Table Finance.dbo.GLCodes(
+    GlCodeKey int identity(1,1) primary key,
+    GlCode varchar(20),
+    GlCodeName varchar(200),
+
+    PnLSection varchar(100),
+    GlCodeType varchar(100),
+
+    GlCodeCategory varchar(100),
+    GlCodeDescription varchar(100)
+);
+
 Create Table LegalEntity(
     LegalEntityKey int identity(1,1) primary key,
     EntityCode varchar(20),

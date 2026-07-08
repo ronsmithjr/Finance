@@ -4,13 +4,13 @@ SELECT
     t.TransactionId,
     t.TransactionDate,
     t.Amount,
-	a.AccountKey,
-    a.AccountCode,
+	g.GlCodeKey,
+    g.GlCode,
     b.BusinessUnitName
     Comments
 FROM
     TransactionEntry t
-    Join Account a on t.accountKey = a.accountKey
+    Join GLCodes g on t.GlCodeKey = g.GlCodeKey
     join businessUnit b on t.businessUnitKey = b.BusinessUnitKey;
 
 

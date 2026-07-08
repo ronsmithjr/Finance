@@ -36,7 +36,7 @@ SELECT
 From 
 (
 SELECT
-	a.AccountType,
+	g.GlCodeCategory,
     dt.FiscalYear,
     dt.QuarterName,
 	t.Amount
@@ -45,18 +45,18 @@ FROM
 JOIN
     DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 JOIN
-	Account a on t.AccountKey = a.AccountKey
+	GLCodes g on t.GlCodeKey = g.GlCodeKey
 WHERE
 	dt.FiscalYear >= @StartFiscalYear AND dt.FiscalYear <= @EndFiscalYear
 AND
-	a.AccountType  IN ('Revenue', 'Expense')
+	g.GlCodeCategory  IN ('Revenue', 'Expense')
 ) as sourceTable
 PIVOT
 (
     Sum(Amount)
     FOR QuarterName in ([Q1],[Q2],[Q3],[Q4])
 ) as PivotTable
-Order by FiscalYear asc, Accounttype desc;
+Order by FiscalYear asc, GlCodeCategory desc;
 
 
 
@@ -65,16 +65,15 @@ SELECT
     dt.FiscalQuarter,
     dt.QuarterName,
     bu.BusinessUnitName,
-    a.AccountName,
-    a.AccountType,
-    a.AccountCategory,
+    g.GlCodeName,
+    g.GlCodeCategory,
     SUM(t.Amount) AS QuarterlyAmount
 FROM
     TransactionEntry t
 JOIN
     DateTimeTable dt ON t.TransactionDate = dt.CalendarDate
 JOIN
-	Account a on t.AccountKey = a.AccountKey
+	GLCodes g on t.GlCodeKey = g.GlCodeKey
 JOIN
 	BusinessUnit bu on t.BusinessUnitKey = bu.BusinessUnitKey
 WHERE
@@ -86,9 +85,8 @@ GROUP BY
     dt.FiscalQuarter,
     dt.QuarterName,
     bu.BusinessUnitName,
-    a.AccountName,
-    a.AccountType,
-    a.AccountCategory
+    g.GlCodeName,
+    g.GlCodeCategory
 ORDER BY
 	bu.BusinessUnitName,
     dt.FiscalYear,

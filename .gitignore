@@ -210,4 +210,5 @@ __marimo__/
 ProfitAndLossSheets/Archive
 .vs/slnx.sqlite
 .vs/VSWorkspaceState.json
-ProfitAndLossSheets/DatabaseObjects/.vs/DatabaseObjects/v15/.ssms_suo
+ProfitAndLossSheets/DatabaseObjects/
+.vs/DatabaseObjects/v15/.ssms_suo
