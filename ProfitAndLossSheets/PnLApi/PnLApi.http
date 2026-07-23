@@ -1,0 +1,6 @@
+@PnLApi_HostAddress = http://localhost:5025
+
+GET {{PnLApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
