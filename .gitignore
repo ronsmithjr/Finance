@@ -212,3 +212,8 @@ ProfitAndLossSheets/Archive
 .vs/VSWorkspaceState.json
 ProfitAndLossSheets/DatabaseObjects/
 .vs/DatabaseObjects/v15/.ssms_suo
+/ProfitAndLossSheets/PnLApi/.vs
+/ProfitAndLossSheets/PnLApi/bin/Debug/net10.0
+/ProfitAndLossSheets/DatabaseObjects/.vs/DatabaseObjects/v15/.ssms_suo
+/ProfitAndLossSheets/PnLApi/obj
+/ProfitAndLossSheets/PnlFrontEndGui/.vscode
